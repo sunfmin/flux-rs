@@ -62,8 +62,8 @@ Flags with no metadata key, given through `FLUXFLAGS`:
 |---|---|
 | `-Fflux-verbose` | Log each function as it is checked. Names the function when Flux itself crashes. |
 | `-Ftimings` | Print the time spent on each function, slowest last. |
-| `-Ffixpoint-timeout=<secs>` | Fail a function whose solver query runs longer. |
-| `-Fcatch-bugs` | Keep going after an internal error to collect more errors. |
+| `-Ffixpoint-timeout=<secs>` | Stop a function's solver query that runs longer, and fail with `fixpoint query timed out` on that function. |
+| `-Fcatch-bugs` | Keep checking after an error, so one run reports every error, a timeout included. |
 | `-Fpointer-width=32` | Treat `usize` as 32 bits when deciding whether a cast loses bits. |
 | `-Fdump-checker-trace`, `-Fdump-fhir`, `-Fdump-rty` | Debugging output for Flux developers. |
 

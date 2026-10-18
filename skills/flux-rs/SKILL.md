@@ -74,6 +74,23 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(flux)'] }
 Checking is fast enough to run after every edit: about 150 functions take 2
 seconds once the dependencies are built.
 
+**In a gate**, run Flux alone, before the tests, with a limit on each solver
+query and none on the whole run:
+
+```sh
+FLUXFLAGS="-Ftimings -Ffixpoint-timeout=20 -Fcatch-bugs" ./verify.sh
+```
+
+- Alone and first: run beside the tests it shares the cores with every one of
+  them, and how long it took says more of them than of it.
+- `-Ffixpoint-timeout=20` stops any one query past twenty seconds and fails
+  with `fixpoint query timed out` on the function, by name. A function's query
+  can otherwise run for many minutes, and nothing says which. Limit the whole
+  run instead and a run cut short names nothing: Flux prints its timings only
+  once it ends.
+- `-Fcatch-bugs` checks on past an error, so one run names every slow function
+  and still ends with `-Ftimings`' report of the slowest.
+
 ## The loop
 
 1. **Say the rule in one sentence**, with its "for every": *for every stack and
@@ -147,6 +164,7 @@ claim nobody checks, so it must be both useful and plainly true of the body.
 | `syntax error` at `requires` | `requires` was written after `ensures`. | Order is result, `requires`, `ensures`. |
 | `invalid extern spec` … `generic parameters don't match` | The stub differs from the real signature. | Copy the external signature exactly, generics and names included. |
 | `cannot access fields of opaque struct` | Only trusted code may look inside an `opaque` struct. | Go through its API, or add a trusted function to it. |
+| `fixpoint query timed out` | One function's constraint is too big for the solver in the time given: usually a loop whose body has many branches, solved with the loop's invariant as one query. | Move the body of one turn into its own function, its spec saying what one turn keeps (`-> Slots{a: a.held <= s.held}`), and leave the loop only the invariant. One such function went from past 20 s to 3 s. |
 | An internal compiler error | A Flux bug. | `FLUXFLAGS="-Fflux-verbose" cargo flux` names the function; mark it `trusted(reason = "..")` and tell the user. |
 
 When the code is right and the proof still fails, Flux is missing a fact:
